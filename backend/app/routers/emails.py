@@ -34,8 +34,16 @@ def _reply_subject(subject: str | None) -> str:
 def list_emails(db: Session = Depends(get_db)):
     rows = db.query(Email).order_by(Email.received_at.desc()).limit(50).all()
     return [
-        {"id": r.id, "sender": r.sender, "category": r.category, "priority": r.priority,
-         "summary": r.summary, "received_at": r.received_at}
+        {
+            "id": r.id,
+            "sender": r.sender,
+            "category": r.category,
+            "priority": r.priority,
+            "summary": r.summary,
+            "confidence": r.confidence,
+            "needs_manual_review": r.needs_manual_review,
+            "received_at": r.received_at,
+        }
         for r in rows
     ]
 
@@ -80,7 +88,9 @@ def send_draft(draft_id: str, db: Session = Depends(get_db)):
         raise HTTPException(401, "Google account is not connected; sign in again.")
 
     thread = db.query(Thread).filter(Thread.id == email.thread_id).first()
-    subject = _reply_subject(thread.subject if thread else None)
+    subject = (draft.subject or "").strip() or _reply_subject(
+        thread.subject if thread else None
+    )
 
     try:
         sent = gmail_service.send(

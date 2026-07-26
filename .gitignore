@@ -1,0 +1,36 @@
+# Ignore environment files (secrets, API keys, etc.)
+.env
+.env.local
+.env.*.local
+.env.example
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+out/
+
+# Logs
+*.log
+logs/
+*.pid
+*.seed
+*.pid.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Coverage reports
+coverage/

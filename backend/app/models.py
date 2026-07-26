@@ -97,6 +97,8 @@ class Email(Base):
     summary = Column(Text)
     embedding = Column(Vector(384))    # 384 = all-MiniLM-L6-v2 dimension
     awaiting_reply = Column(Boolean, default=False)
+    confidence = Column(Float, default=0.0)
+    needs_manual_review = Column(Boolean, default=False)
     sent_at = Column(DateTime, nullable=True)
 
 
@@ -104,6 +106,7 @@ class Draft(Base):
     __tablename__ = "drafts"
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
     email_id = Column(UUID(as_uuid=False), ForeignKey("emails.id"), nullable=False)
+    subject = Column(String, nullable=True)
     content = Column(Text)
     status = Column(Enum(DraftStatus), default=DraftStatus.pending)
     confidence = Column(Float, default=0.0)

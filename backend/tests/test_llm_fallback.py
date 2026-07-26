@@ -7,7 +7,7 @@ from app.models import RelationshipType
 
 
 class LlmFallbackTests(unittest.TestCase):
-    @patch("app.services.llm.call_gemini", side_effect=GeminiError("unavailable"))
+    @patch("app.services.llm.llm.call_gemini", side_effect=GeminiError("unavailable"))
     def test_extracts_action_task_when_llm_is_unavailable(self, _mock_gemini):
         result = classify_and_extract(
             "Please complete the essay and ppt on corporate life topic and submit by EOD",
@@ -20,17 +20,29 @@ class LlmFallbackTests(unittest.TestCase):
         self.assertIn("essay", result["tasks"][0]["description"].lower())
         self.assertTrue(result["tasks"][0]["deadline"])
         self.assertIn("confidence", result["tasks"][0])
+        self.assertIn("confidence", result)
+        self.assertGreaterEqual(result["confidence"], 0.0)
+        self.assertLessEqual(result["confidence"], 1.0)
 
-    @patch("app.services.llm.call_gemini", side_effect=GeminiError("unavailable"))
+    @patch("app.services.llm.llm.call_gemini", side_effect=GeminiError("unavailable"))
     def test_relationship_falls_back_to_unknown(self, _mock_gemini):
         relationship, confidence = classify_relationship_llm("Alex", "Hey, are we still on for dinner?")
         self.assertEqual(relationship, RelationshipType.unknown)
         self.assertEqual(confidence, 0.3)
 
-    @patch("app.services.llm.call_gemini", side_effect=GeminiError("timeout"))
+    @patch("app.services.llm.llm.call_gemini", side_effect=GeminiError("timeout"))
     def test_draft_falls_back_to_heuristic(self, _mock_gemini):
-        text = generate_draft("Please send the report", "Report", {"formality": "medium"}, [])
-        self.assertIn("Thanks for the reminder", text)
+        result = generate_draft(
+            "Please send the report",
+            "Report",
+            "work",
+            {"formality": "medium"},
+            [],
+            [],
+        )
+        self.assertEqual(result["subject"], "Re: Report")
+        self.assertIn("Thanks for the reminder", result["draft"])
+        self.assertIn("confidence", result)
 
 
 class JsonRepairTests(unittest.TestCase):

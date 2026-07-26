@@ -37,6 +37,24 @@ def _ensure_schema():
                 "ADD COLUMN IF NOT EXISTS gmail_message_id VARCHAR"
             )
         )
+        conn.execute(
+            text(
+                "ALTER TABLE drafts "
+                "ADD COLUMN IF NOT EXISTS subject VARCHAR"
+            )
+        )
+        conn.execute(
+            text(
+                "ALTER TABLE emails "
+                "ADD COLUMN IF NOT EXISTS confidence DOUBLE PRECISION DEFAULT 0"
+            )
+        )
+        conn.execute(
+            text(
+                "ALTER TABLE emails "
+                "ADD COLUMN IF NOT EXISTS needs_manual_review BOOLEAN DEFAULT FALSE"
+            )
+        )
 
 
 @app.on_event("startup")

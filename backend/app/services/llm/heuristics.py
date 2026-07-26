@@ -96,9 +96,16 @@ def classify_and_extract(email_body: str, subject: str) -> dict:
         "priority": priority,
         "summary": summary,
         "awaiting_reply": awaiting_reply,
+        "confidence": 0.55 if awaiting_reply else 0.5,
         "tasks": tasks,
     }
 
 
-def generate_draft() -> str:
-    return _DEFAULT_DRAFT
+def generate_draft(subject: str = "") -> dict:
+    text = (subject or "").strip() or "(no subject)"
+    reply_subject = text if text.lower().startswith("re:") else f"Re: {text}"
+    return {
+        "subject": reply_subject,
+        "draft": _DEFAULT_DRAFT,
+        "confidence": 0.4,
+    }
