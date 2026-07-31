@@ -1,5 +1,7 @@
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
+import os
 
 
 class Settings(BaseSettings):
@@ -27,4 +29,10 @@ class Settings(BaseSettings):
         return value
 
 
+print("Current working directory:", os.getcwd())
+print("Does .env exist here?", Path(".env").resolve())
+print("Env file exists:", Path(".env").exists())
+
 settings = Settings()
+
+print("Loaded GEMINI_API_KEY =", settings.gemini_api_key)

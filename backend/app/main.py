@@ -59,12 +59,15 @@ def _ensure_schema():
 
 @app.on_event("startup")
 def on_startup():
-    try:
-        configure_gemini()
-    except GeminiConfigError as exc:
-        raise RuntimeError(str(exc)) from exc
-    _ensure_schema()  # for local dev; use Alembic migrations in production
+    print("1. Startup begins")
+
+    print("2. Creating tables...")
+    Base.metadata.create_all(bind=engine)
+    print("3. Tables created")
+
+    print("4. Starting scheduler...")
     start_scheduler()
+    print("5. Scheduler started")
 
 
 @app.get("/health")

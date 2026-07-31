@@ -71,6 +71,7 @@ def configure_gemini() -> None:
         settings.gemini_timeout_seconds,
         settings.gemini_max_retries,
     )
+    print("Gemini key:", api_key)
 
 
 def _ensure_configured() -> None:
