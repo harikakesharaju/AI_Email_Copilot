@@ -127,6 +127,67 @@ def send_draft(draft_id: str, db: Session = Depends(get_db)):
         "sent_at": email.sent_at,
     }
 
+@router.get("/drafts")
+def list_drafts(db: Session = Depends(get_db)):
+
+    drafts = (
+        db.query(Draft)
+        .order_by(Draft.created_at.desc())
+        .all()
+    )
+
+    response = []
+
+    for draft in drafts:
+
+        email = (
+            db.query(Email)
+            .filter(Email.id == draft.email_id)
+            .first()
+        )
+
+        response.append({
+
+            "id": draft.id,
+
+            "content": draft.content,
+
+            "confidence": draft.confidence,
+
+            "status": draft.status,
+
+            "created_at": draft.created_at,
+
+            "mixed_audience": draft.mixed_audience,
+
+            "gmail_message_id": draft.gmail_message_id,
+
+            "email_id": draft.email_id,
+
+            # Extra information for frontend
+
+            "sender": email.sender if email else None,
+
+            "summary": email.summary if email else None,
+
+            "category": email.category if email else None,
+
+            "priority": email.priority if email else None,
+
+            "received_at": email.received_at if email else None,
+
+            # use draft subject if available,
+            # otherwise fall back to summary
+
+            "subject": (
+                draft.subject
+                if draft.subject
+                else (email.summary if email else None)
+            )
+
+        })
+
+    return response
 
 @router.post("/drafts/{draft_id}/edit")
 def edit_draft(draft_id: str, new_text: str, db: Session = Depends(get_db)):

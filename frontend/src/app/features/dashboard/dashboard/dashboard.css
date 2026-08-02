@@ -1,0 +1,63 @@
+.page-title{
+
+    margin-bottom:30px;
+
+}
+
+.stats-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+    gap:20px;
+
+}
+
+.stat-card{
+
+    padding:20px;
+
+    text-align:center;
+
+    border-radius:16px;
+
+}
+
+.stat-card h3{
+
+    color:#666;
+
+    margin-bottom:10px;
+
+}
+
+.stat-card h1{
+
+    font-size:42px;
+
+    color:#1976d2;
+
+    margin:0;
+
+}
+
+.section{
+
+    margin-top:30px;
+
+}
+
+.section mat-card{
+
+    padding:20px;
+
+    border-radius:16px;
+
+}
+
+.section p{
+
+    margin:12px 0;
+
+}

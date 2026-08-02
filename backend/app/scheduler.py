@@ -72,7 +72,7 @@ def check_for_follow_ups():
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(poll_unread_emails, "interval", seconds=60, id="poll_unread")
+    scheduler.add_job(poll_unread_emails, "interval", minutes=5, id="poll_unread")
     scheduler.add_job(check_for_follow_ups, "interval", hours=1, id="follow_ups")
     scheduler.start()
     return scheduler

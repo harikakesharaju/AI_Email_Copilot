@@ -1,0 +1,79 @@
+.page-title{
+
+    margin-bottom:30px;
+
+}
+
+.draft-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(420px,1fr));
+
+    gap:24px;
+
+}
+
+.draft-card{
+
+    padding:24px;
+
+    border-radius:18px;
+
+    transition:.25s;
+
+}
+
+.draft-card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:0 10px 24px rgba(0,0,0,.15);
+
+}
+
+.top-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+.status-chip{
+
+    background:#1976d2 !important;
+
+    color:white !important;
+
+}
+
+.body{
+
+    margin:20px 0;
+
+    line-height:1.7;
+
+    white-space:pre-wrap;
+
+}
+
+.bottom-row{
+
+    color:gray;
+
+    margin-bottom:20px;
+
+}
+
+.actions{
+
+    display:flex;
+
+    gap:12px;
+
+    flex-wrap:wrap;
+
+}

@@ -1,2 +1,51 @@
-<h1>Drafts</h1>
-<p>Draft Replies</p>
+<h1 class="page-title">AI Draft Replies</h1>
+
+<div class="draft-grid">
+  <mat-card class="draft-card" *ngFor="let draft of drafts()">
+    <div class="top-row">
+      <mat-chip class="status-chip" [ngClass]="draft.status">
+        {{ draft.status }}
+      </mat-chip>
+
+      <span>
+        {{ draft.confidence | percent: '1.0-0' }}
+      </span>
+    </div>
+
+    <h3>
+      {{ draft.subject || 'No Subject' }}
+    </h3>
+
+    <div class="body">
+      {{ draft.content }}
+    </div>
+
+    <div class="bottom-row">
+      <span>
+        {{ draft.created_at | date: 'medium' }}
+      </span>
+    </div>
+
+    <div class="actions">
+      <button mat-raised-button (click)="copy(draft.content)">Copy</button>
+
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="editDraft(draft)"
+        [disabled]="draft.status === 'sent'"
+      >
+        Edit
+      </button>
+
+      <button
+        mat-raised-button
+        color="accent"
+        (click)="sendDraft(draft.id)"
+        [disabled]="draft.status === 'sent'"
+      >
+        Send
+      </button>
+    </div>
+  </mat-card>
+</div>

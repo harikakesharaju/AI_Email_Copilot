@@ -1,1 +1,48 @@
-<p>navbar works!</p>
+<mat-toolbar class="navbar">
+
+  <div class="left-section">
+
+    <button
+      mat-icon-button
+      class="menu-button"
+      [matMenuTriggerFor]="mobileMenu">
+
+      <mat-icon>menu</mat-icon>
+
+    </button>
+
+    <div class="logo">
+      🤖 AI Email Copilot
+    </div>
+
+    <nav class="nav-links">
+
+      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+
+      <a routerLink="/emails" routerLinkActive="active">Emails</a>
+
+      <a routerLink="/tasks" routerLinkActive="active">Tasks</a>
+
+      <a routerLink="/drafts" routerLinkActive="active">Drafts</a>
+
+      <a routerLink="/settings" routerLinkActive="active">Settings</a>
+
+    </nav>
+
+  </div>
+
+  <button mat-icon-button>
+    <mat-icon>account_circle</mat-icon>
+  </button>
+
+</mat-toolbar>
+
+<mat-menu #mobileMenu="matMenu">
+
+  <button mat-menu-item routerLink="/dashboard">Dashboard</button>
+  <button mat-menu-item routerLink="/emails">Emails</button>
+  <button mat-menu-item routerLink="/tasks">Tasks</button>
+  <button mat-menu-item routerLink="/drafts">Drafts</button>
+  <button mat-menu-item routerLink="/settings">Settings</button>
+
+</mat-menu>

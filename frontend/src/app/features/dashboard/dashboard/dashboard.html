@@ -1,2 +1,73 @@
-<h1>Dashboard</h1>
-<p>AI Email Copilot Dashboard</p>
+<h1 class="page-title">
+
+    Dashboard
+
+</h1>
+
+<div class="stats-grid">
+
+    <mat-card class="stat-card">
+
+        <h3>Emails</h3>
+
+        <h1>{{emails().length}}</h1>
+
+    </mat-card>
+
+    <mat-card class="stat-card">
+
+        <h3>Tasks</h3>
+
+        <h1>{{tasks().length}}</h1>
+
+    </mat-card>
+
+    <mat-card class="stat-card">
+
+        <h3>Drafts</h3>
+
+        <h1>12</h1>
+
+    </mat-card>
+
+    <mat-card class="stat-card">
+
+        <h3>Pending</h3>
+
+        <h1>4</h1>
+
+    </mat-card>
+
+</div>
+
+<div class="section">
+
+    <mat-card>
+
+        <h2>Recent Emails</h2>
+
+        <p>Interview Invitation</p>
+
+        <p>Project Update</p>
+
+        <p>Weekly Status Report</p>
+
+    </mat-card>
+
+</div>
+
+<div class="section">
+
+    <mat-card>
+
+        <h2>Today's Tasks</h2>
+
+        <p>✔ Reply to recruiter</p>
+
+        <p>✔ Review AI draft</p>
+
+        <p>✔ Submit documents</p>
+
+    </mat-card>
+
+</div>

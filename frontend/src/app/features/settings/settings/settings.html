@@ -1,2 +1,134 @@
-<h1>Settings</h1>
-<p>Application Settings</p>
+<h1 class="page-title">
+
+    Settings
+
+</h1>
+
+<div class="settings-container">
+
+    <mat-card>
+
+        <h2>Google Account</h2>
+
+        <p class="connected">
+
+            ✅ Connected
+
+        </p>
+
+    </mat-card>
+
+    <mat-card>
+
+        <h2>AI Model</h2>
+
+        <mat-form-field appearance="outline">
+
+            <mat-label>
+
+                Select Model
+
+            </mat-label>
+
+            <mat-select [(ngModel)]="model">
+
+                <mat-option value="Gemini 2.5 Flash">
+
+                    Gemini 2.5 Flash
+
+                </mat-option>
+
+                <mat-option value="Gemini 2.5 Pro">
+
+                    Gemini 2.5 Pro
+
+                </mat-option>
+
+            </mat-select>
+
+        </mat-form-field>
+
+    </mat-card>
+
+    <mat-card>
+
+        <h2>Confidence Threshold</h2>
+
+        <input
+            type="range"
+            min="0"
+            max="100"
+            [(ngModel)]="confidence">
+
+        <p>
+
+            {{confidence}}%
+
+        </p>
+
+    </mat-card>
+
+    <mat-card>
+
+        <h2>Automatic Draft Approval</h2>
+
+        <mat-slide-toggle [(ngModel)]="autoApprove">
+
+            Enable
+
+        </mat-slide-toggle>
+
+    </mat-card>
+
+    <mat-card>
+
+        <h2>Automatic Send</h2>
+
+        <mat-slide-toggle [(ngModel)]="autoSend">
+
+            Enable
+
+        </mat-slide-toggle>
+
+    </mat-card>
+
+    <mat-card>
+
+        <h2>Polling Interval</h2>
+
+        <mat-form-field appearance="outline">
+
+            <mat-label>
+
+                Seconds
+
+            </mat-label>
+
+            <mat-select [(ngModel)]="polling">
+
+                <mat-option [value]="15">15</mat-option>
+
+                <mat-option [value]="30">30</mat-option>
+
+                <mat-option [value]="60">60</mat-option>
+
+            </mat-select>
+
+        </mat-form-field>
+
+    </mat-card>
+
+</div>
+
+<div class="save-btn">
+
+    <button
+        mat-raised-button
+        color="primary"
+        (click)="saveSettings()">
+
+        Save Settings
+
+    </button>
+
+</div>

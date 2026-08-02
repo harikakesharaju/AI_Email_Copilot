@@ -1,9 +1,107 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+import { MatTableModule } from '@angular/material/table';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { Email } from '../../../core/models/email.model';
+import { EmailService } from '../../../core/services/email.service';
 
 @Component({
   selector: 'app-emails',
-  imports: [],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatTableModule,
+    MatCardModule,
+    MatChipsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './emails.html',
-  styleUrl: './emails.css',
+  styleUrl: './emails.css'
 })
-export class Emails {}
+export class Emails implements OnInit {
+
+  emails = signal<Email[]>([]);
+
+  loading = true;
+
+  searchText = '';
+
+  displayedColumns = [
+    'sender',
+    'summary',
+    'category',
+    'priority',
+    'confidence',
+    'needs_manual_review',
+    'received_at'
+  ];
+
+  constructor(
+    private emailService: EmailService
+  ) {}
+
+  ngOnInit(): void {
+
+    this.loadEmails();
+
+  }
+
+  loadEmails() {
+
+    this.loading = true;
+
+    this.emailService.getEmails().subscribe({
+
+      next: (data: Email[]) => {
+
+        this.emails.set(data);
+        this.loading = false;
+
+      },
+
+      error: (err) => {
+
+        console.error(err);
+        this.loading = false;
+
+      }
+
+    });
+
+  }
+
+  filteredEmails = computed(() => {
+
+    const search = this.searchText.toLowerCase();
+
+    if (!search) {
+      return this.emails();
+    }
+
+    return this.emails().filter(email =>
+
+      email.sender.toLowerCase().includes(search) ||
+
+      email.summary.toLowerCase().includes(search)
+
+    );
+
+  });
+
+  getSenderName(email: string): string {
+
+    return email.split('@')[0];
+
+  }
+
+}

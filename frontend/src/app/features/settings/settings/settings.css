@@ -1,0 +1,25 @@
+.settings-container{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
+
+    gap:25px;
+
+}
+
+mat-card{
+
+    padding:26px;
+
+}
+
+.save-btn{
+
+    margin-top:30px;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+}

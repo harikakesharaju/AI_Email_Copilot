@@ -1,0 +1,47 @@
+table{
+
+    width:100%;
+
+}
+
+.mat-mdc-row:nth-child(even){
+
+    background:#fafafa;
+
+}
+
+.mat-mdc-row:hover{
+
+    background:#eaf3ff;
+
+}
+
+.mat-column-summary{
+
+    max-width:500px;
+
+}
+
+.high-chip{
+
+    background:#e53935 !important;
+
+    color:white !important;
+
+}
+
+.medium-chip{
+
+    background:#fb8c00 !important;
+
+    color:white !important;
+
+}
+
+.low-chip{
+
+    background:#43a047 !important;
+
+    color:white !important;
+
+}

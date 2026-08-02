@@ -1,1 +1,60 @@
 /* You can add global styles to this file, and also import other style files */
+html, body {
+
+  height: 100%;
+
+}
+
+body {
+
+  margin: 0;
+
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+
+  background: #f5f7fb;
+
+  color: #1f2937;
+
+}
+
+*{
+
+  box-sizing:border-box;
+
+}
+
+.page-title{
+
+  font-size:34px;
+
+  font-weight:700;
+
+  margin-bottom:30px;
+
+}
+
+.content{
+
+  padding:32px;
+
+  max-width:1500px;
+
+  margin:auto;
+
+}
+
+.mat-mdc-card{
+
+  border-radius:18px !important;
+
+  transition:.25s;
+
+}
+
+.mat-mdc-card:hover{
+
+  transform:translateY(-4px);
+
+  box-shadow:0 14px 35px rgba(0,0,0,.12);
+
+}
