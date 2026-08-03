@@ -59,15 +59,19 @@ def _ensure_schema():
 
 @app.on_event("startup")
 def on_startup():
-    print("1. Startup begins")
+    print("Starting AI Email Copilot...")
 
-    print("2. Creating tables...")
-    Base.metadata.create_all(bind=engine)
-    print("3. Tables created")
+    _ensure_schema()
 
-    print("4. Starting scheduler...")
+    try:
+        configure_gemini()
+        print("Gemini configured")
+    except GeminiConfigError as e:
+        print(f"Gemini configuration warning: {e}")
+
     start_scheduler()
-    print("5. Scheduler started")
+
+    print("Startup complete.")
 
 
 @app.get("/health")

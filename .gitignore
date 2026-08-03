@@ -1,36 +1,55 @@
-# Ignore environment files (secrets, API keys, etc.)
+# ==========================
+# Environment files
+# ==========================
 .env
 .env.local
 .env.*.local
-.env.example
 
-# Node.js dependencies
+# Keep only the example
+!.env.example
+
+# ==========================
+# Python
+# ==========================
+backend/.venv/
+backend/__pycache__/
+backend/**/*.pyc
+backend/.pytest_cache/
+
+# ==========================
+# Node / Angular
+# ==========================
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+frontend/node_modules/
 
-# Build outputs
+# ==========================
+# Angular build
+# ==========================
 dist/
 build/
 out/
+.angular/
+.cache/
 
+# ==========================
 # Logs
+# ==========================
 *.log
 logs/
-*.pid
-*.seed
-*.pid.lock
 
-# OS files
+# ==========================
+# IDE
+# ==========================
+.vscode/
+.idea/
+
+# ==========================
+# OS
+# ==========================
 .DS_Store
 Thumbs.db
 
-# IDE/editor settings
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Coverage reports
+# ==========================
+# Coverage
+# ==========================
 coverage/
