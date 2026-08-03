@@ -131,9 +131,9 @@ def send_draft(draft_id: str, db: Session = Depends(get_db)):
 def list_drafts(db: Session = Depends(get_db)):
 
     drafts = (
-        db.query(Draft)
-        .order_by(Draft.created_at.desc())
-        .all()
+        db.query(Draft)\
+.order_by(Draft.created_at.desc())\
+.all()
     )
 
     response = []
