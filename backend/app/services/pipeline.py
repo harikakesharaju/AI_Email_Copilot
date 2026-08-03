@@ -48,7 +48,7 @@ def process_new_message(db: Session, user: User, gmail_message_id: str):
             category=analysis["category"],
             priority=analysis["priority"],
             summary=analysis["summary"],
-            embedding=embeddings.embed_text(raw["body"]),
+            embedding=None,
             awaiting_reply=analysis["awaiting_reply"],
             confidence=analysis_confidence,
             needs_manual_review=False,
@@ -63,7 +63,7 @@ def process_new_message(db: Session, user: User, gmail_message_id: str):
         email_row.category = analysis["category"]
         email_row.priority = analysis["priority"]
         email_row.summary = analysis["summary"]
-        email_row.embedding = embeddings.embed_text(raw["body"])
+        email_row.embedding =None
         email_row.awaiting_reply = analysis["awaiting_reply"]
         email_row.confidence = analysis_confidence
         db.add(email_row)
