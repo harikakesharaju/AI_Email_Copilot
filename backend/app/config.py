@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     google_redirect_uri: str
     gemini_api_key: str = ""
     secret_key: str
-    frontend_url: str = "http://localhost:3000"
+    frontend_url: str = "http://localhost:4200"
 
     # Gemini client tuning (override via env: GEMINI_MODEL, etc.)
     gemini_model: str = "gemini-2.5-flash"
