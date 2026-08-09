@@ -160,7 +160,7 @@ def callback(request: Request, response: Response, code: str | None = None, stat
         key="auth_user_id",
         value=str(user.id),
         httponly=True,
-        samesite="lax",
+        samesite="none",
         secure=True,
         max_age=60 * 60 * 24 * 7,
     )
@@ -170,7 +170,7 @@ def callback(request: Request, response: Response, code: str | None = None, stat
         key="auth_user_id",
         value=str(user.id),
         httponly=True,
-        samesite="lax",
+        samesite="none",
         secure=True,
         max_age=60 * 60 * 24 * 7,
     )
