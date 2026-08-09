@@ -141,6 +141,45 @@ def fetch_message(user: User, message_id: str, db: Session | None = None) -> dic
     return _call_gmail(user, _fetch, db)
 
 
+def create_draft(
+    user: User,
+    *,
+    to: str,
+    subject: str,
+    body: str,
+    thread_id: str | None = None,
+    in_reply_to: str | None = None,
+    db: Session | None = None,
+) -> dict:
+    """Create a Gmail draft using the user's stored OAuth credentials."""
+    mime = MIMEText(body, _charset="utf-8")
+    mime["To"] = to
+    mime["From"] = user.email
+    mime["Subject"] = subject
+    if in_reply_to:
+        mime["In-Reply-To"] = in_reply_to
+        mime["References"] = in_reply_to
+
+    raw = base64.urlsafe_b64encode(mime.as_bytes()).decode("ascii")
+    payload: dict = {"message": {"raw": raw}}
+    if thread_id:
+        payload["message"]["threadId"] = thread_id
+
+    def _create(service):
+        resp = (
+            service.users()
+            .drafts()
+            .create(userId="me", body=payload)
+            .execute()
+        )
+        return {
+            "gmail_draft_id": resp.get("id"),
+            "gmail_thread_id": resp.get("message", {}).get("threadId", thread_id),
+        }
+
+    return _call_gmail(user, _create, db)
+
+
 def send(
     user: User,
     *,

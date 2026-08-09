@@ -189,3 +189,18 @@ def _generate_draft(db: Session, user: User, email_row: Email, raw: dict, contac
         )
     )
     db.commit()
+    db.refresh(email_row)
+
+    try:
+        gmail_service.create_draft(
+            user,
+            to=email_row.sender,
+            subject=result["subject"],
+            body=result["draft"],
+            thread_id=raw.get("gmail_thread_id"),
+            in_reply_to=None,
+            db=db,
+        )
+    except Exception:
+        # Keep the DB draft record even if Gmail draft creation fails.
+        pass
