@@ -194,6 +194,11 @@ def classify_and_extract(email_body: str, subject: str) -> dict:
         )
         validated = _validate_classification(result)
         if validated is not None:
+            logger.info(
+                "classify_and_extract result=success source=gemini confidence=%s awaiting_reply=%s",
+                validated.get("confidence"),
+                validated.get("awaiting_reply"),
+            )
             return validated
         logger.error(
             "gemini_parse_error prompt_type=%s error=invalid_classification_payload payload=%r",
@@ -205,7 +210,13 @@ def classify_and_extract(email_body: str, subject: str) -> dict:
         _log_fallback(prompt_type, str(exc))
     except Exception as exc:  # noqa: BLE001
         _log_fallback(prompt_type, f"unexpected:{exc}")
-    return heuristics.classify_and_extract(email_body, subject)
+    result = heuristics.classify_and_extract(email_body, subject)
+    logger.info(
+        "classify_and_extract result=success source=heuristics confidence=%s awaiting_reply=%s",
+        result.get("confidence"),
+        result.get("awaiting_reply"),
+    )
+    return result
 
 
 def generate_draft(

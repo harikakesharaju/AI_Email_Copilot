@@ -23,7 +23,14 @@ _ACTION_VERBS = [
     "share",
     "finish",
     "reply",
-    "update",
+    "confirm",
+    "schedule",
+    "participate",
+    "attend",
+    "register",
+    "validate",
+    "verify",
+    "authorize",
 ]
 
 
@@ -51,6 +58,7 @@ def classify_and_extract(email_body: str, subject: str) -> dict:
         )
 
     tasks: list[dict] = []
+    task_confidence = 0.5
     if awaiting_reply:
         description = ""
         body_text = email_body.strip()
@@ -64,11 +72,13 @@ def classify_and_extract(email_body: str, subject: str) -> dict:
         description = description.rstrip(" .")
         if len(description) > 140:
             description = description[:137].rstrip() + "..."
+        # Higher confidence if we found specific action verbs matched
+        task_confidence = 0.8 if matched_actions else 0.65
         tasks.append(
             {
                 "description": description,
                 "deadline": deadline.isoformat() if deadline else "",
-                "confidence": 0.7,
+                "confidence": task_confidence,
             }
         )
 
@@ -76,7 +86,7 @@ def classify_and_extract(email_body: str, subject: str) -> dict:
         "WORK"
         if any(
             word in lower_text
-            for word in ["work", "project", "task", "submit", "ppt", "essay", "deadline"]
+            for word in ["work", "project", "task", "submit", "ppt", "essay", "deadline", "meeting", "interview", "hackathon", "event"]
         )
         else "OTHER"
     )
@@ -91,12 +101,31 @@ def classify_and_extract(email_body: str, subject: str) -> dict:
     if len(summary_words) > 50:
         summary = " ".join(summary_words[:50])
 
+    # Compute confidence based on email signals
+    confidence = 0.5
+    if awaiting_reply:
+        confidence = 0.5
+        # Boost confidence for emails with clear action verbs
+        if matched_actions:
+            confidence = min(0.75, confidence + 0.25)
+        # Boost for clear deadlines
+        if deadline:
+            confidence = min(0.78, confidence + 0.08)
+        # Boost for urgent language
+        if priority in ("URGENT", "HIGH"):
+            confidence = min(0.80, confidence + 0.10)
+        # Boost if it's a WORK category (more likely actionable)
+        if category == "WORK":
+            confidence = min(0.82, confidence + 0.07)
+    else:
+        confidence = 0.3
+
     return {
         "category": category,
         "priority": priority,
         "summary": summary,
         "awaiting_reply": awaiting_reply,
-        "confidence": 0.55 if awaiting_reply else 0.5,
+        "confidence": confidence,
         "tasks": tasks,
     }
 
