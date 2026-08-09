@@ -12,11 +12,11 @@ export class ApiService {
   constructor(private http: HttpClient) {}
 
   get<T>(endpoint: string) {
-    return this.http.get<T>(`${this.baseUrl}${endpoint}`);
+    return this.http.get<T>(`${this.baseUrl}${endpoint}`, { withCredentials: true });
   }
 
   post<T>(endpoint: string, body: any) {
-    return this.http.post<T>(`${this.baseUrl}${endpoint}`, body);
+    return this.http.post<T>(`${this.baseUrl}${endpoint}`, body, { withCredentials: true });
   }
 
 }

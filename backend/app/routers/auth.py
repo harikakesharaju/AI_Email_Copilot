@@ -2,6 +2,7 @@ import os
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi import Response
 from google_auth_oauthlib.flow import Flow
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from sqlalchemy.orm import Session
@@ -54,7 +55,10 @@ def _fetch_credentials_from_code(flow: Flow, request: Request, code: str | None)
 
 
 def _build_frontend_redirect_response() -> RedirectResponse:
-    return RedirectResponse(url=settings.frontend_url, status_code=302)
+    frontend_base_url = settings.frontend_url
+    if frontend_base_url.startswith("http://localhost") or frontend_base_url.startswith("http://127.0.0.1"):
+        frontend_base_url = "https://ai-email-copilot-green.vercel.app"
+    return RedirectResponse(url=f"{frontend_base_url.rstrip('/')}/dashboard", status_code=302)
 
 
 @router.get("/login")
@@ -69,7 +73,7 @@ def login():
 
 
 @router.get("/callback")
-def callback(request: Request, code: str | None = None, state: str | None = None, db: Session = Depends(get_db)):
+def callback(request: Request, response: Response, code: str | None = None, state: str | None = None, db: Session = Depends(get_db)):
     if not code:
         return JSONResponse(
             status_code=400,
@@ -152,4 +156,22 @@ def callback(request: Request, code: str | None = None, state: str | None = None
     db.commit()
     db.refresh(user)
 
-    return _build_frontend_redirect_response()
+    response.set_cookie(
+        key="auth_user_id",
+        value=str(user.id),
+        httponly=True,
+        samesite="lax",
+        secure=True,
+        max_age=60 * 60 * 24 * 7,
+    )
+
+    redirect_response = _build_frontend_redirect_response()
+    redirect_response.set_cookie(
+        key="auth_user_id",
+        value=str(user.id),
+        httponly=True,
+        samesite="lax",
+        secure=True,
+        max_age=60 * 60 * 24 * 7,
+    )
+    return redirect_response

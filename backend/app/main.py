@@ -12,9 +12,10 @@ app = FastAPI(title="AI Email Copilot")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url],
+    allow_origins=[settings.frontend_url, "https://ai-email-copilot-green.vercel.app"],
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True,
 )
 
 app.include_router(auth.router)

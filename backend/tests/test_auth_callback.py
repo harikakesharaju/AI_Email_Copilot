@@ -21,11 +21,14 @@ class DummyFlow:
 
 
 class AuthCallbackTests(unittest.TestCase):
-    def test_frontend_redirect_uses_found_status(self):
+    def test_frontend_redirect_uses_dashboard_path(self):
         response = auth._build_frontend_redirect_response()
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.headers["location"], auth.settings.frontend_url)
+        location = response.headers["location"]
+        self.assertTrue(location.endswith("/dashboard"))
+        self.assertNotIn("/login", location)
+        self.assertNotIn("localhost", location)
 
     def test_scopes_are_canonical(self):
         self.assertEqual(

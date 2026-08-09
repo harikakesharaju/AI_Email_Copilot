@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from google.auth.exceptions import RefreshError
 from googleapiclient.errors import HttpError
 from sqlalchemy.orm import Session
@@ -30,9 +30,27 @@ def _reply_subject(subject: str | None) -> str:
     return f"Re: {text}"
 
 
+def _current_user_from_request(request: Request, db: Session) -> User:
+    user_id = request.cookies.get("auth_user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    return user
+
+
 @router.get("/emails")
-def list_emails(db: Session = Depends(get_db)):
-    rows = db.query(Email).order_by(Email.received_at.desc()).limit(50).all()
+def list_emails(request: Request, db: Session = Depends(get_db)):
+    user = _current_user_from_request(request, db)
+    rows = (
+        db.query(Email)
+        .filter(Email.user_id == user.id)
+        .order_by(Email.received_at.desc())
+        .limit(50)
+        .all()
+    )
     return [
         {
             "id": r.id,
@@ -49,14 +67,21 @@ def list_emails(db: Session = Depends(get_db)):
 
 
 @router.get("/tasks")
-def list_tasks(db: Session = Depends(get_db)):
-    rows = db.query(Task).filter(Task.status == "open").order_by(Task.deadline).all()
+def list_tasks(request: Request, db: Session = Depends(get_db)):
+    user = _current_user_from_request(request, db)
+    rows = (
+        db.query(Task)
+        .filter(Task.user_id == user.id, Task.status == "open")
+        .order_by(Task.deadline)
+        .all()
+    )
     return [{"id": r.id, "description": r.description, "deadline": r.deadline} for r in rows]
 
 
 @router.post("/drafts/{draft_id}/approve")
-def approve_draft(draft_id: str, db: Session = Depends(get_db)):
-    draft = db.query(Draft).filter(Draft.id == draft_id).first()
+def approve_draft(draft_id: str, request: Request, db: Session = Depends(get_db)):
+    user = _current_user_from_request(request, db)
+    draft = db.query(Draft).join(Email).filter(Draft.id == draft_id, Email.user_id == user.id).first()
     if not draft:
         raise HTTPException(404, "Draft not found")
     draft.status = DraftStatus.approved
@@ -65,9 +90,10 @@ def approve_draft(draft_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/drafts/{draft_id}/send")
-def send_draft(draft_id: str, db: Session = Depends(get_db)):
+def send_draft(draft_id: str, request: Request, db: Session = Depends(get_db)):
     """Send a pending (or approved/edited) draft via Gmail and mark it sent."""
-    draft = db.query(Draft).filter(Draft.id == draft_id).first()
+    user = _current_user_from_request(request, db)
+    draft = db.query(Draft).join(Email).filter(Draft.id == draft_id, Email.user_id == user.id).first()
     if not draft:
         raise HTTPException(404, "Draft not found")
     if draft.status == DraftStatus.sent:
@@ -128,12 +154,15 @@ def send_draft(draft_id: str, db: Session = Depends(get_db)):
     }
 
 @router.get("/drafts")
-def list_drafts(db: Session = Depends(get_db)):
+def list_drafts(request: Request, db: Session = Depends(get_db)):
+    user = _current_user_from_request(request, db)
 
     drafts = (
-        db.query(Draft)\
-.order_by(Draft.created_at.desc())\
-.all()
+        db.query(Draft)
+        .join(Email)
+        .filter(Email.user_id == user.id)
+        .order_by(Draft.created_at.desc())
+        .all()
     )
 
     response = []
@@ -190,10 +219,11 @@ def list_drafts(db: Session = Depends(get_db)):
     return response
 
 @router.post("/drafts/{draft_id}/edit")
-def edit_draft(draft_id: str, new_text: str, db: Session = Depends(get_db)):
+def edit_draft(draft_id: str, new_text: str, request: Request, db: Session = Depends(get_db)):
     """Every edit is logged as a feedback event, scoped to the relationship type
     of the thread — this is what lets tone_profiles improve over time."""
-    draft = db.query(Draft).filter(Draft.id == draft_id).first()
+    user = _current_user_from_request(request, db)
+    draft = db.query(Draft).join(Email).filter(Draft.id == draft_id, Email.user_id == user.id).first()
     if not draft:
         raise HTTPException(404, "Draft not found")
 
