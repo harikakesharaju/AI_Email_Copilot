@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from google.auth.exceptions import RefreshError
 from googleapiclient.errors import HttpError
 from sqlalchemy.orm import Session
@@ -19,6 +19,28 @@ from app.models import (
 from app.services import gmail_service
 
 router = APIRouter(prefix="/api", tags=["emails"])
+
+
+@router.get("/me")
+def current_user(request: Request, db: Session = Depends(get_db)):
+    """Return the currently authenticated user or 401 if unauthenticated."""
+    user = _current_user_from_request(request, db)
+    return {"id": user.id, "email": user.email}
+
+
+@router.post("/logout")
+def logout(response: Response):
+    """Clear the auth cookie to log the user out."""
+    # Clear the cookie used for authentication. Set max_age=0 to expire immediately.
+    response.set_cookie(
+        key="auth_user_id",
+        value="",
+        httponly=True,
+        samesite="none",
+        secure=True,
+        max_age=0,
+    )
+    return {"status": "ok"}
 
 _SENDABLE_STATUSES = {DraftStatus.pending, DraftStatus.approved, DraftStatus.edited}
 

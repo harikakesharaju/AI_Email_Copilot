@@ -31,9 +31,20 @@
 
   </div>
 
-  <button mat-icon-button>
-    <mat-icon>account_circle</mat-icon>
-  </button>
+  <div class="profile-container">
+    <button mat-icon-button (click)="toggleMenu($event)">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <div class="profile-menu" *ngIf="menuOpen">
+      <div class="profile-email" *ngIf="user; else notSignedIn">{{ user.email }}</div>
+      <ng-template #notSignedIn>
+        <a routerLink="/login" class="profile-link">Login</a>
+      </ng-template>
+      <div class="profile-actions">
+        <button mat-button (click)="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
 
 </mat-toolbar>
 

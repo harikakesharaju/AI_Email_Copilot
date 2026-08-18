@@ -111,3 +111,30 @@
     }
 
 }
+
+.profile-container{
+    position: relative;
+}
+.profile-menu{
+    position: absolute;
+    right: 0;
+    top: 48px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 8px;
+    min-width: 180px;
+    z-index: 1000;
+}
+.profile-email{
+    padding: 8px 12px;
+    color: rgba(0,0,0,0.87);
+}
+.profile-actions{
+    padding: 4px 8px;
+    text-align: right;
+}
+.profile-link{
+    display: block;
+    padding: 8px 12px;
+}
