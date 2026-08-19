@@ -1,25 +1,145 @@
-.settings-container{
+.page-header { margin-bottom: 28px; }
 
-    display:grid;
-
-    grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
-
-    gap:25px;
-
+.page-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #202124;
+  margin: 0 0 4px;
 }
 
-mat-card{
-
-    padding:26px;
-
+.page-subtitle {
+  font-size: 14px;
+  color: #5f6368;
+  margin: 0;
 }
 
-.save-btn{
+.settings-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+}
 
-    margin-top:30px;
+.settings-card {
+  padding: 24px !important;
+  border-radius: 12px !important;
+}
 
-    display:flex;
+.settings-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10) !important;
+  transform: none !important;
+}
 
-    justify-content:flex-end;
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+}
 
+.card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-icon mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.connected-icon { background: #e6f4ea; color: #188038; }
+.model-icon     { background: #e8f0fe; color: #1967d2; }
+.threshold-icon { background: #fff3e0; color: #e65100; }
+.auto-icon      { background: #f3e8fd; color: #8430ce; }
+.poll-icon      { background: #e6f4ea; color: #188038; }
+
+.card-header h3 {
+  margin: 0 0 2px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #202124;
+}
+
+.card-header p {
+  margin: 0;
+  font-size: 13px;
+  color: #5f6368;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #188038;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.connection-status mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.full-width { width: 100%; }
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.slider {
+  flex: 1;
+  accent-color: #1967d2;
+  cursor: pointer;
+}
+
+.slider-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1967d2;
+  min-width: 52px;
+  text-align: right;
+}
+
+.toggle-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.toggle-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.toggle-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggle-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #202124;
+}
+
+.toggle-sub {
+  font-size: 12px;
+  color: #5f6368;
+}
+
+.save-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 28px;
 }

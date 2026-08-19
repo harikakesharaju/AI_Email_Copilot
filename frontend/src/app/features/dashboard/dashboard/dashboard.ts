@@ -1,75 +1,47 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
-import { EmailService } from '../../../core/services/email.service';
-import { TaskService } from '../../../core/services/task.service';
+import { ApiService } from '../../../core/services/api.service';
 
-import { Email } from '../../../core/models/email.model';
-import { Task } from '../../../core/models/task.model';
-import { ChangeDetectorRef } from '@angular/core';
-import { signal } from '@angular/core';
-
+interface DashboardStats {
+  totalEmails: number;
+  pendingTasks: number;
+  drafts: number;
+  needsReview: number;
+}
 
 @Component({
-
   selector: 'app-dashboard',
-
   standalone: true,
-
   imports: [
-    CommonModule,
-    MatCardModule
+    CommonModule, RouterModule,
+    MatCardModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule,
   ],
-
   templateUrl: './dashboard.html',
-
-  styleUrl: './dashboard.css'
-
+  styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
+  stats = signal<DashboardStats | null>(null);
+  loading = true;
+  error = false;
 
-emails = signal<Email[]>([]);
-
-tasks = signal<Task[]>([]);
-constructor(
-  private emailService: EmailService,
-  private taskService: TaskService,
-  private cdr: ChangeDetectorRef
-) {}
+  constructor(private api: ApiService) {}
 
   ngOnInit(): void {
-
-    this.loadDashboard();
-
+    this.loadStats();
   }
 
-  loadDashboard() {
-
-    this.emailService.getEmails().subscribe({
-
-      next: (data) => {
-        this.emails.set(data);
-        console.log("Emails received:", data);
-
-      },
-
-      error: (err) => console.error(err)
-
+  loadStats(): void {
+    this.loading = true;
+    this.error = false;
+    this.api.get<DashboardStats>('/api/dashboard/stats').subscribe({
+      next: (data) => { this.stats.set(data); this.loading = false; },
+      error: () => { this.loading = false; this.error = true; },
     });
-
-    this.taskService.getTasks().subscribe({
-
-      next: (data) => {
-        this.tasks.set(data);
-        console.log("Tasks received:", data);
-
-      },
-
-      error: (err) => console.error(err)
-
-    });
-
   }
-
 }

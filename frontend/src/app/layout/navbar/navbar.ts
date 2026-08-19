@@ -1,6 +1,6 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
 
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -13,24 +13,19 @@ import { MatDividerModule } from '@angular/material/divider';
   selector: 'app-navbar',
   standalone: true,
   imports: [
-    RouterLink,
-    RouterLinkActive,
-    NgIf,
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
+    RouterLink, RouterLinkActive, CommonModule,
+    MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule,
   ],
   templateUrl: './navbar.html',
-  styleUrl: './navbar.css'
+  styleUrl: './navbar.css',
 })
 export class Navbar implements OnInit {
-  user: any = null;
-  menuOpen = false;
+  user: { id: string; email: string } | null = null;
 
   constructor(private api: ApiService, private router: Router) {}
 
   ngOnInit(): void {
-    this.api.get<any>('/api/me').subscribe({
+    this.api.get<{ id: string; email: string }>('/api/me').subscribe({
       next: (u) => (this.user = u),
       error: () => (this.user = null),
     });
@@ -38,25 +33,8 @@ export class Navbar implements OnInit {
 
   logout(): void {
     this.api.post('/api/logout', {}).subscribe({
-      next: () => {
-        this.user = null;
-        // Navigate to login after logout
-        this.router.navigate(['/login']);
-      },
-      error: () => {
-        this.user = null;
-        this.router.navigate(['/login']);
-      },
+      next: () => { this.user = null; this.router.navigate(['/login']); },
+      error: () => { this.user = null; this.router.navigate(['/login']); },
     });
-  }
-
-  toggleMenu(event: Event): void {
-    event.stopPropagation();
-    this.menuOpen = !this.menuOpen;
-  }
-
-  @HostListener('document:click', ['$event'])
-  handleDocumentClick(_: Event) {
-    this.menuOpen = false;
   }
 }

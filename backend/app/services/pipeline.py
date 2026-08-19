@@ -63,7 +63,7 @@ def process_new_message(db: Session, user: User, gmail_message_id: str):
         email_row.category = analysis["category"]
         email_row.priority = analysis["priority"]
         email_row.summary = analysis["summary"]
-        email_row.embedding =None
+        email_row.embedding = None
         email_row.awaiting_reply = analysis["awaiting_reply"]
         email_row.confidence = analysis_confidence
         db.add(email_row)
@@ -170,14 +170,16 @@ def _generate_draft(db: Session, user: User, email_row: Email, raw: dict, contac
         similar_emails,
     )
 
-    # Mixed-audience threads are always held for review, never auto-considered high confidence
+    # Mixed-audience threads are always held for review
     confidence = result["confidence"]
     if mixed_audience:
         confidence = min(confidence, 0.4)
 
-    if confidence < AUTO_DRAFT_MIN_CONFIDENCE:
+    # Always persist the draft so the user can see and review it.
+    # Low-confidence drafts are flagged for manual review rather than suppressed.
+    needs_review = confidence < AUTO_DRAFT_MIN_CONFIDENCE
+    if needs_review:
         _mark_manual_review(db, email_row)
-        return
 
     db.add(
         Draft(

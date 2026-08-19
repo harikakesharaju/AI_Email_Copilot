@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 
 import { TaskService } from '../../../core/services/task.service';
 import { Task } from '../../../core/models/task.model';
@@ -17,13 +19,11 @@ import { Task } from '../../../core/models/task.model';
   imports: [
 
     CommonModule,
-
     MatCardModule,
-
     MatCheckboxModule,
-
-    MatChipsModule
-
+    MatChipsModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
   ],
 
   templateUrl: './tasks.html',
@@ -35,23 +35,35 @@ import { Task } from '../../../core/models/task.model';
 export class Tasks implements OnInit {
 
   tasks = signal<Task[]>([]);
+  loading = true;
 
   constructor(private taskService: TaskService) {}
 
   ngOnInit(): void {
+    this.loadTasks();
+  }
 
+  loadTasks(): void {
+    this.loading = true;
     this.taskService.getTasks().subscribe({
-
       next: data => {
-
         this.tasks.set(data);
-
+        this.loading = false;
       },
-
-      error: err => console.error(err)
-
+      error: err => {
+        console.error(err);
+        this.loading = false;
+      }
     });
+  }
 
+  completeTask(taskId: string): void {
+    this.taskService.completeTask(taskId).subscribe({
+      next: () => {
+        this.tasks.update(tasks => tasks.filter(t => t.id !== taskId));
+      },
+      error: err => console.error(err),
+    });
   }
 
   tasksWithDeadline(): number {

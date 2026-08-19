@@ -1,72 +1,52 @@
-<h1 class="page-title">
-
-    Tasks
-
-</h1>
-<div class="stats-grid">
-
-    <mat-card>
-
-        <h3>Total Tasks</h3>
-
-        <h1>{{ tasks().length }}</h1>
-
-    </mat-card>
-
-    <mat-card>
-
-        <h3>With Deadline</h3>
-
-        <h1>{{ tasksWithDeadline() }}</h1>
-
-    </mat-card>
-
-    <mat-card>
-
-        <h3>No Deadline</h3>
-
-        <h1>{{ tasksWithoutDeadline() }}</h1>
-
-    </mat-card>
-
+<div class="page-header">
+  <h1 class="page-title">Tasks</h1>
+  <p class="page-subtitle">AI-extracted action items from your emails</p>
 </div>
 
-<div class="task-container">
+<div *ngIf="loading" class="centered">
+  <mat-spinner diameter="48"></mat-spinner>
+  <p class="loading-label">Loading tasks…</p>
+</div>
 
-    <mat-card
-        class="task-card"
-        *ngFor="let task of tasks()">
+<ng-container *ngIf="!loading">
 
-        <div class="task-header">
+  <div *ngIf="tasks().length === 0" class="state-card">
+    <mat-icon class="state-icon">task_alt</mat-icon>
+    <h2>No tasks yet</h2>
+    <p>Tasks are extracted automatically from your emails by Gemini AI.</p>
+  </div>
 
-            <mat-checkbox>
+  <ng-container *ngIf="tasks().length > 0">
 
-            </mat-checkbox>
+    <div class="stats-row">
+      <div class="stat-pill">
+        <mat-icon>list</mat-icon>
+        <span><strong>{{ tasks().length }}</strong> total</span>
+      </div>
+      <div class="stat-pill deadline-pill" *ngIf="tasksWithDeadline() > 0">
+        <mat-icon>event</mat-icon>
+        <span><strong>{{ tasksWithDeadline() }}</strong> with deadline</span>
+      </div>
+      <div class="stat-pill" *ngIf="tasksWithoutDeadline() > 0">
+        <mat-icon>pending_actions</mat-icon>
+        <span><strong>{{ tasksWithoutDeadline() }}</strong> no deadline</span>
+      </div>
+    </div>
 
-            <h3>
-
-                {{task.description}}
-
-            </h3>
-
+    <div class="task-grid">
+      <mat-card class="task-card" *ngFor="let task of tasks()">
+        <div class="task-top">
+          <mat-checkbox (change)="$event.checked && completeTask(task.id)" class="task-check"></mat-checkbox>
+          <p class="task-desc">{{ task.description }}</p>
         </div>
+        <div class="task-footer" [ngClass]="{'overdue-badge': isOverdue(task), 'on-time': !isOverdue(task) && task.deadline}">
+          <mat-icon>{{ isOverdue(task) ? 'schedule' : task.deadline ? 'event' : 'hourglass_empty' }}</mat-icon>
+          <span *ngIf="task.deadline">{{ isOverdue(task) ? 'Overdue · ' : '' }}{{ task.deadline | date:'MMM d, y' }}</span>
+          <span *ngIf="!task.deadline">No deadline</span>
+        </div>
+      </mat-card>
+    </div>
 
-        <div class="deadline" [ngClass]="{'overdue':isOverdue(task)}">
+  </ng-container>
 
-    <span *ngIf="task.deadline">
-
-        📅 Due: {{task.deadline | date:'mediumDate'}}
-
-    </span>
-
-    <span *ngIf="!task.deadline">
-
-        ⏰ No deadline
-
-    </span>
-
-</div>
-
-    </mat-card>
-
-</div>
+</ng-container>

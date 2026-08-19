@@ -30,15 +30,7 @@ sendDraft(id:string):Observable<any>{
 
 }
 
-editDraft(id:string,newText:string):Observable<any>{
-
-  return this.api.post(
-
-    `/api/drafts/${id}/edit?new_text=${encodeURIComponent(newText)}`,
-
-    {}
-
-  );
-
+editDraft(id: string, newText: string): Observable<any> {
+  return this.api.post(`/api/drafts/${id}/edit`, { new_text: newText });
 }
 }

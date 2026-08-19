@@ -1,51 +1,47 @@
-<h1 class="page-title">AI Draft Replies</h1>
+<div class="page-header">
+  <h1 class="page-title">AI Draft Replies</h1>
+  <p class="page-subtitle">Review and send AI-generated email replies</p>
+</div>
 
-<div class="draft-grid">
+<div *ngIf="loading" class="centered">
+  <mat-spinner diameter="48"></mat-spinner>
+  <p class="loading-label">Loading drafts…</p>
+</div>
+
+<div *ngIf="!loading && drafts().length === 0" class="state-card">
+  <mat-icon class="state-icon">edit_note</mat-icon>
+  <h2>No drafts yet</h2>
+  <p>AI draft replies are generated when an email needs a response and confidence is sufficient.</p>
+</div>
+
+<div class="draft-grid" *ngIf="!loading && drafts().length > 0">
   <mat-card class="draft-card" *ngFor="let draft of drafts()">
-    <div class="top-row">
-      <mat-chip class="status-chip" [ngClass]="draft.status">
-        {{ draft.status }}
-      </mat-chip>
 
-      <span>
-        {{ draft.confidence | percent: '1.0-0' }}
-      </span>
+    <div class="draft-header">
+      <span class="status-chip" [ngClass]="'status-' + draft.status">{{ draft.status }}</span>
+      <span class="confidence">{{ draft.confidence | percent:'1.0-0' }} confidence</span>
     </div>
 
-    <h3>
-      {{ draft.subject || 'No Subject' }}
-    </h3>
+    <h3 class="draft-subject">{{ draft.subject || 'No Subject' }}</h3>
 
-    <div class="body">
-      {{ draft.content }}
+    <div class="draft-body">{{ draft.content }}</div>
+
+    <div class="draft-meta">
+      <mat-icon>schedule</mat-icon>
+      <span>{{ draft.created_at | date:'MMM d, y · h:mm a' }}</span>
     </div>
 
-    <div class="bottom-row">
-      <span>
-        {{ draft.created_at | date: 'medium' }}
-      </span>
-    </div>
-
-    <div class="actions">
-      <button mat-raised-button (click)="copy(draft.content)">Copy</button>
-
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="editDraft(draft)"
-        [disabled]="draft.status === 'sent'"
-      >
-        Edit
+    <div class="draft-actions">
+      <button mat-stroked-button (click)="copy(draft.content)">
+        <mat-icon>content_copy</mat-icon> Copy
       </button>
-
-      <button
-        mat-raised-button
-        color="accent"
-        (click)="sendDraft(draft.id)"
-        [disabled]="draft.status === 'sent'"
-      >
-        Send
+      <button mat-stroked-button color="primary" (click)="editDraft(draft)" [disabled]="draft.status === 'sent'">
+        <mat-icon>edit</mat-icon> Edit
+      </button>
+      <button mat-raised-button color="primary" (click)="sendDraft(draft.id)" [disabled]="draft.status === 'sent'">
+        <mat-icon>send</mat-icon> Send
       </button>
     </div>
+
   </mat-card>
 </div>

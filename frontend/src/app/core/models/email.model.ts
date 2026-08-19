@@ -1,19 +1,10 @@
 export interface Email {
-
   id: string;
-
-  sender: string;
-
-  summary: string;
-
-  category: string;
-
-  priority: string;
-
+  sender: string | null;
+  summary: string | null;
+  category: string | null;
+  priority: string | null;
   needs_manual_review: boolean;
-
-  confidence:number;
-
-  received_at: string;
-
+  confidence: number;
+  received_at: string | null;
 }

@@ -1,134 +1,103 @@
-<h1 class="page-title">
+<div class="page-header">
+  <h1 class="page-title">Settings</h1>
+  <p class="page-subtitle">Configure AI behaviour and sync preferences</p>
+</div>
 
-    Settings
+<div class="settings-layout">
 
-</h1>
+  <mat-card class="settings-card">
+    <div class="card-header">
+      <div class="card-icon connected-icon"><mat-icon>verified_user</mat-icon></div>
+      <div>
+        <h3>Google Account</h3>
+        <p>Gmail access for email sync and sending</p>
+      </div>
+    </div>
+    <div class="connection-status">
+      <mat-icon>check_circle</mat-icon>
+      <span>Connected</span>
+    </div>
+  </mat-card>
 
-<div class="settings-container">
+  <mat-card class="settings-card">
+    <div class="card-header">
+      <div class="card-icon model-icon"><mat-icon>smart_toy</mat-icon></div>
+      <div>
+        <h3>AI Model</h3>
+        <p>Select the Gemini model for email analysis</p>
+      </div>
+    </div>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Model</mat-label>
+      <mat-select [(ngModel)]="model">
+        <mat-option value="Gemini 2.5 Flash">Gemini 2.5 Flash — Faster</mat-option>
+        <mat-option value="Gemini 2.5 Pro">Gemini 2.5 Pro — More capable</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </mat-card>
 
-    <mat-card>
+  <mat-card class="settings-card">
+    <div class="card-header">
+      <div class="card-icon threshold-icon"><mat-icon>tune</mat-icon></div>
+      <div>
+        <h3>Confidence Threshold</h3>
+        <p>Minimum confidence to auto-classify and draft</p>
+      </div>
+    </div>
+    <div class="slider-row">
+      <input type="range" min="0" max="100" [(ngModel)]="confidence" class="slider">
+      <span class="slider-value">{{ confidence }}%</span>
+    </div>
+  </mat-card>
 
-        <h2>Google Account</h2>
+  <mat-card class="settings-card">
+    <div class="card-header">
+      <div class="card-icon auto-icon"><mat-icon>rule</mat-icon></div>
+      <div>
+        <h3>Automation</h3>
+        <p>Control how drafts are handled</p>
+      </div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-item">
+        <div class="toggle-label">
+          <span class="toggle-title">Auto-approve drafts</span>
+          <span class="toggle-sub">Mark drafts as approved without manual review</span>
+        </div>
+        <mat-slide-toggle [(ngModel)]="autoApprove"></mat-slide-toggle>
+      </div>
+      <div class="toggle-item">
+        <div class="toggle-label">
+          <span class="toggle-title">Auto-send emails</span>
+          <span class="toggle-sub">Send approved drafts automatically</span>
+        </div>
+        <mat-slide-toggle [(ngModel)]="autoSend" color="warn"></mat-slide-toggle>
+      </div>
+    </div>
+  </mat-card>
 
-        <p class="connected">
-
-            ✅ Connected
-
-        </p>
-
-    </mat-card>
-
-    <mat-card>
-
-        <h2>AI Model</h2>
-
-        <mat-form-field appearance="outline">
-
-            <mat-label>
-
-                Select Model
-
-            </mat-label>
-
-            <mat-select [(ngModel)]="model">
-
-                <mat-option value="Gemini 2.5 Flash">
-
-                    Gemini 2.5 Flash
-
-                </mat-option>
-
-                <mat-option value="Gemini 2.5 Pro">
-
-                    Gemini 2.5 Pro
-
-                </mat-option>
-
-            </mat-select>
-
-        </mat-form-field>
-
-    </mat-card>
-
-    <mat-card>
-
-        <h2>Confidence Threshold</h2>
-
-        <input
-            type="range"
-            min="0"
-            max="100"
-            [(ngModel)]="confidence">
-
-        <p>
-
-            {{confidence}}%
-
-        </p>
-
-    </mat-card>
-
-    <mat-card>
-
-        <h2>Automatic Draft Approval</h2>
-
-        <mat-slide-toggle [(ngModel)]="autoApprove">
-
-            Enable
-
-        </mat-slide-toggle>
-
-    </mat-card>
-
-    <mat-card>
-
-        <h2>Automatic Send</h2>
-
-        <mat-slide-toggle [(ngModel)]="autoSend">
-
-            Enable
-
-        </mat-slide-toggle>
-
-    </mat-card>
-
-    <mat-card>
-
-        <h2>Polling Interval</h2>
-
-        <mat-form-field appearance="outline">
-
-            <mat-label>
-
-                Seconds
-
-            </mat-label>
-
-            <mat-select [(ngModel)]="polling">
-
-                <mat-option [value]="15">15</mat-option>
-
-                <mat-option [value]="30">30</mat-option>
-
-                <mat-option [value]="60">60</mat-option>
-
-            </mat-select>
-
-        </mat-form-field>
-
-    </mat-card>
+  <mat-card class="settings-card">
+    <div class="card-header">
+      <div class="card-icon poll-icon"><mat-icon>sync</mat-icon></div>
+      <div>
+        <h3>Polling Interval</h3>
+        <p>How often Gmail is checked for new emails</p>
+      </div>
+    </div>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Interval (seconds)</mat-label>
+      <mat-select [(ngModel)]="polling">
+        <mat-option [value]="15">15 seconds</mat-option>
+        <mat-option [value]="30">30 seconds</mat-option>
+        <mat-option [value]="60">60 seconds</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </mat-card>
 
 </div>
 
-<div class="save-btn">
-
-    <button
-        mat-raised-button
-        color="primary"
-        (click)="saveSettings()">
-
-        Save Settings
-
-    </button>
-
+<div class="save-row">
+  <button mat-raised-button color="primary" (click)="saveSettings()">
+    <mat-icon>save</mat-icon> Save Settings
+  </button>
 </div>

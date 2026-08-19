@@ -26,9 +26,9 @@ class AuthCallbackTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 302)
         location = response.headers["location"]
-        self.assertTrue(location.endswith("/dashboard"))
+        # Must redirect to /dashboard (not /login or any other route)
+        self.assertTrue(location.endswith("/dashboard"), f"Expected /dashboard, got: {location}")
         self.assertNotIn("/login", location)
-        self.assertNotIn("localhost", location)
 
     def test_scopes_are_canonical(self):
         self.assertEqual(

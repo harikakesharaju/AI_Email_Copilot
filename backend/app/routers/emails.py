@@ -3,6 +3,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from google.auth.exceptions import RefreshError
 from googleapiclient.errors import HttpError
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -19,6 +20,35 @@ from app.models import (
 from app.services import gmail_service
 
 router = APIRouter(prefix="/api", tags=["emails"])
+
+
+@router.get("/dashboard/stats")
+def dashboard_stats(request: Request, db: Session = Depends(get_db)):
+    """Return real counts for the authenticated user's dashboard."""
+    user = _current_user_from_request(request, db)
+    total_emails = db.query(Email).filter(Email.user_id == user.id).count()
+    pending_tasks = (
+        db.query(Task)
+        .filter(Task.user_id == user.id, Task.status == "open")
+        .count()
+    )
+    drafts_count = (
+        db.query(Draft)
+        .join(Email)
+        .filter(Email.user_id == user.id, Draft.status != DraftStatus.sent)
+        .count()
+    )
+    needs_review = (
+        db.query(Email)
+        .filter(Email.user_id == user.id, Email.needs_manual_review.is_(True))
+        .count()
+    )
+    return {
+        "totalEmails": total_emails,
+        "pendingTasks": pending_tasks,
+        "drafts": drafts_count,
+        "needsReview": needs_review,
+    }
 
 
 @router.get("/me")
@@ -43,6 +73,10 @@ def logout(response: Response):
     return {"status": "ok"}
 
 _SENDABLE_STATUSES = {DraftStatus.pending, DraftStatus.approved, DraftStatus.edited}
+
+
+class EditDraftBody(BaseModel):
+    new_text: str
 
 
 def _reply_subject(subject: str | None) -> str:
@@ -100,6 +134,17 @@ def list_tasks(request: Request, db: Session = Depends(get_db)):
     return [{"id": r.id, "description": r.description, "deadline": r.deadline} for r in rows]
 
 
+@router.post("/tasks/{task_id}/complete")
+def complete_task(task_id: str, request: Request, db: Session = Depends(get_db)):
+    user = _current_user_from_request(request, db)
+    task = db.query(Task).filter(Task.id == task_id, Task.user_id == user.id).first()
+    if not task:
+        raise HTTPException(404, "Task not found")
+    task.status = "done"
+    db.commit()
+    return {"status": "done"}
+
+
 @router.post("/drafts/{draft_id}/approve")
 def approve_draft(draft_id: str, request: Request, db: Session = Depends(get_db)):
     user = _current_user_from_request(request, db)
@@ -131,8 +176,8 @@ def send_draft(draft_id: str, request: Request, db: Session = Depends(get_db)):
     if not email.sender:
         raise HTTPException(400, "Original email has no sender to reply to")
 
-    user = db.query(User).filter(User.id == email.user_id).first()
-    if not user or not user.google_refresh_token:
+    owner = db.query(User).filter(User.id == email.user_id).first()
+    if not owner or not owner.google_refresh_token:
         raise HTTPException(401, "Google account is not connected; sign in again.")
 
     thread = db.query(Thread).filter(Thread.id == email.thread_id).first()
@@ -142,7 +187,7 @@ def send_draft(draft_id: str, request: Request, db: Session = Depends(get_db)):
 
     try:
         sent = gmail_service.send(
-            user,
+            owner,
             to=email.sender,
             subject=subject,
             body=draft.content,
@@ -241,7 +286,7 @@ def list_drafts(request: Request, db: Session = Depends(get_db)):
     return response
 
 @router.post("/drafts/{draft_id}/edit")
-def edit_draft(draft_id: str, new_text: str, request: Request, db: Session = Depends(get_db)):
+def edit_draft(draft_id: str, body: EditDraftBody, request: Request, db: Session = Depends(get_db)):
     """Every edit is logged as a feedback event, scoped to the relationship type
     of the thread — this is what lets tone_profiles improve over time."""
     user = _current_user_from_request(request, db)
@@ -250,14 +295,14 @@ def edit_draft(draft_id: str, new_text: str, request: Request, db: Session = Dep
         raise HTTPException(404, "Draft not found")
 
     email = db.query(Email).filter(Email.id == draft.email_id).first()
-    contact = db.query(Contact).filter(Contact.email == email.sender).first()
+    contact = db.query(Contact).filter(Contact.email == email.sender, Contact.user_id == user.id).first()
     relationship_type = contact.relationship_type if contact else None
 
     db.add(FeedbackEvent(
         user_id=email.user_id, draft_id=draft.id, relationship_type=relationship_type,
-        original_text=draft.content, edited_text=new_text,
+        original_text=draft.content, edited_text=body.new_text,
     ))
-    draft.content = new_text
+    draft.content = body.new_text
     draft.status = DraftStatus.edited
     db.commit()
     return {"status": "edited"}

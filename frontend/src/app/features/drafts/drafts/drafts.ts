@@ -4,65 +4,59 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 
+import { MatIconModule } from '@angular/material/icon';
 import { Draft } from '../../../core/models/draft.model';
 import { DraftService } from '../../../core/services/draft.service';
 
 @Component({
   selector: 'app-drafts',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatCardModule, MatButtonModule, MatChipsModule],
+  imports: [CommonModule, FormsModule, MatCardModule, MatButtonModule, MatChipsModule, MatSnackBarModule, MatProgressSpinnerModule, MatIconModule],
   templateUrl: './drafts.html',
   styleUrl: './drafts.css',
 })
 export class Drafts implements OnInit {
   drafts = signal<Draft[]>([]);
-  snackBar: any;
+  loading = true;
 
-  constructor(private draftService: DraftService) {}
+  constructor(private draftService: DraftService, private snackBar: MatSnackBar) {}
 
   ngOnInit(): void {
     this.loadDrafts();
   }
 
   loadDrafts(): void {
+    this.loading = true;
     this.draftService.getDrafts().subscribe({
       next: (data: Draft[]) => {
         this.drafts.set(data);
+        this.loading = false;
       },
-
       error: (err: any) => {
         console.error(err);
+        this.loading = false;
       },
     });
   }
 
   copy(text: string): void {
     navigator.clipboard.writeText(text);
-
-    alert('Draft copied.');
+    this.snackBar.open('Draft copied', 'Close', { duration: 2500 });
   }
 
   approveDraft(id: string): void {
     this.draftService.approveDraft(id).subscribe({
       next: () => {
-        this.snackBar.open(
-          'Draft Approved',
-
-          'Close',
-
-          {
-            duration: 2500,
-          },
-        );
+        this.snackBar.open('Draft approved', 'Close', { duration: 2500 });
         this.loadDrafts();
       },
-
       error: (err: any) => {
         console.error(err);
-
-        alert('Unable to approve draft.');
+        this.snackBar.open('Unable to approve draft', 'Close', { duration: 3000 });
       },
     });
   }
@@ -70,15 +64,12 @@ export class Drafts implements OnInit {
   sendDraft(id: string): void {
     this.draftService.sendDraft(id).subscribe({
       next: () => {
-        alert('Email Sent Successfully');
-
+        this.snackBar.open('Email sent successfully', 'Close', { duration: 3000 });
         this.loadDrafts();
       },
-
       error: (err: any) => {
         console.error(err);
-
-        alert(err?.error?.detail || 'Failed to send email.');
+        this.snackBar.open(err?.error?.detail || 'Failed to send email.', 'Close', { duration: 4000 });
       },
     });
   }
@@ -92,15 +83,12 @@ export class Drafts implements OnInit {
 
     this.draftService.editDraft(draft.id, updated).subscribe({
       next: () => {
-        alert('Draft Updated');
-
+        this.snackBar.open('Draft updated', 'Close', { duration: 2500 });
         this.loadDrafts();
       },
-
       error: (err: any) => {
         console.error(err);
-
-        alert('Unable to update draft.');
+        this.snackBar.open('Unable to update draft.', 'Close', { duration: 3000 });
       },
     });
   }

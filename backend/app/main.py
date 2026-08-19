@@ -56,6 +56,56 @@ def _ensure_schema():
                 "ADD COLUMN IF NOT EXISTS needs_manual_review BOOLEAN DEFAULT FALSE"
             )
         )
+        conn.execute(
+            text(
+                "ALTER TABLE emails "
+                "ADD COLUMN IF NOT EXISTS sent_at TIMESTAMP"
+            )
+        )
+        conn.execute(
+            text(
+                "ALTER TABLE emails "
+                "ADD COLUMN IF NOT EXISTS awaiting_reply BOOLEAN DEFAULT FALSE"
+            )
+        )
+        conn.execute(
+            text(
+                "ALTER TABLE drafts "
+                "ADD COLUMN IF NOT EXISTS mixed_audience BOOLEAN DEFAULT FALSE"
+            )
+        )
+        conn.execute(
+            text(
+                "ALTER TABLE drafts "
+                "ADD COLUMN IF NOT EXISTS confidence DOUBLE PRECISION DEFAULT 0"
+            )
+        )
+        conn.execute(
+            text(
+                "DO $$ BEGIN "
+                "CREATE TYPE draftstatus AS ENUM "
+                "('pending','approved','edited','rejected','sent'); "
+                "EXCEPTION WHEN duplicate_object THEN null; END $$"
+            )
+        )
+        conn.execute(
+            text(
+                "ALTER TABLE drafts "
+                "ADD COLUMN IF NOT EXISTS status draftstatus DEFAULT 'pending'"
+            )
+        )
+        # Prevent duplicate drafts for the same email (guards against multi-worker race).
+        conn.execute(
+            text(
+                "DO $$ BEGIN "
+                "IF NOT EXISTS ("
+                "  SELECT 1 FROM pg_constraint WHERE conname = 'uq_drafts_email_id'"
+                ") THEN "
+                "  ALTER TABLE drafts ADD CONSTRAINT uq_drafts_email_id UNIQUE (email_id); "
+                "END IF; "
+                "END $$"
+            )
+        )
 
 
 @app.on_event("startup")

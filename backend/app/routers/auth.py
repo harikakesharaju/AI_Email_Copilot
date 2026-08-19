@@ -7,7 +7,10 @@ from google_auth_oauthlib.flow import Flow
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from sqlalchemy.orm import Session
 
-os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")
+# Only disable HTTPS enforcement in local development.
+# On Render, ENVIRONMENT defaults to "production" so this block is skipped.
+if os.getenv("ENVIRONMENT", "production").lower() != "production":
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 from app.config import settings
 from app.database import get_db
@@ -55,10 +58,8 @@ def _fetch_credentials_from_code(flow: Flow, request: Request, code: str | None)
 
 
 def _build_frontend_redirect_response() -> RedirectResponse:
-    frontend_base_url = settings.frontend_url
-    if frontend_base_url.startswith("http://localhost") or frontend_base_url.startswith("http://127.0.0.1"):
-        frontend_base_url = "https://ai-email-copilot-green.vercel.app"
-    return RedirectResponse(url=f"{frontend_base_url.rstrip('/')}/dashboard", status_code=302)
+    frontend_base_url = settings.frontend_url.rstrip("/")
+    return RedirectResponse(url=f"{frontend_base_url}/dashboard", status_code=302)
 
 
 @router.get("/login")
@@ -155,15 +156,6 @@ def callback(request: Request, response: Response, code: str | None = None, stat
     db.add(user)
     db.commit()
     db.refresh(user)
-
-    response.set_cookie(
-        key="auth_user_id",
-        value=str(user.id),
-        httponly=True,
-        samesite="none",
-        secure=True,
-        max_age=60 * 60 * 24 * 7,
-    )
 
     redirect_response = _build_frontend_redirect_response()
     redirect_response.set_cookie(

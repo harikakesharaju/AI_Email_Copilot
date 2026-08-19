@@ -8,6 +8,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 
 import { Email } from '../../../core/models/email.model';
 import { EmailService } from '../../../core/services/email.service';
@@ -23,7 +24,8 @@ import { EmailService } from '../../../core/services/email.service';
     MatChipsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatIconModule
   ],
   templateUrl: './emails.html',
   styleUrl: './emails.css'
@@ -89,19 +91,14 @@ export class Emails implements OnInit {
     }
 
     return this.emails().filter(email =>
-
-      email.sender.toLowerCase().includes(search) ||
-
-      email.summary.toLowerCase().includes(search)
-
+      (email.sender ?? '').toLowerCase().includes(search) ||
+      (email.summary ?? '').toLowerCase().includes(search)
     );
 
   });
 
   getSenderName(email: string): string {
-
-    return email.split('@')[0];
-
+    return (email ?? '').split('@')[0];
   }
 
 }

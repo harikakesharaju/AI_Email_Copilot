@@ -1,7 +1,5 @@
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pathlib import Path
-import os
 
 
 class Settings(BaseSettings):
@@ -14,6 +12,9 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     secret_key: str
     frontend_url: str = "http://localhost:4200"
+    # Set to "development" in local .env to enable OAuth over HTTP.
+    # Must be "production" (or absent) on Render.
+    environment: str = "production"
 
     # Gemini client tuning (override via env: GEMINI_MODEL, etc.)
     gemini_model: str = "gemini-2.5-flash"
@@ -29,10 +30,4 @@ class Settings(BaseSettings):
         return value
 
 
-print("Current working directory:", os.getcwd())
-print("Does .env exist here?", Path(".env").resolve())
-print("Env file exists:", Path(".env").exists())
-
 settings = Settings()
-
-print("Loaded GEMINI_API_KEY =", settings.gemini_api_key)
