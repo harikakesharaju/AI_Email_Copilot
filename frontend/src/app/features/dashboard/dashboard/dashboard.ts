@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 import { ApiService } from '../../../core/services/api.service';
+import { finalize } from 'rxjs/operators';
 
 interface DashboardStats {
   totalEmails: number;
@@ -39,9 +40,11 @@ export class Dashboard implements OnInit {
   loadStats(): void {
     this.loading = true;
     this.error = false;
-    this.api.get<DashboardStats>('/api/dashboard/stats').subscribe({
-      next: (data) => { this.stats.set(data); this.loading = false; },
-      error: () => { this.loading = false; this.error = true; },
+    this.api.get<DashboardStats>('/api/dashboard/stats').pipe(
+      finalize(() => { this.loading = false; })
+    ).subscribe({
+      next: (data) => { this.stats.set(data); },
+      error: () => { this.error = true; },
     });
   }
 }

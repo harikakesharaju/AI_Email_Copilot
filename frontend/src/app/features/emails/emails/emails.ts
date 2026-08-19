@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { Email } from '../../../core/models/email.model';
 import { EmailService } from '../../../core/services/email.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-emails',
@@ -62,22 +63,15 @@ export class Emails implements OnInit {
 
     this.loading = true;
 
-    this.emailService.getEmails().subscribe({
-
+    this.emailService.getEmails().pipe(
+      finalize(() => { this.loading = false; })
+    ).subscribe({
       next: (data: Email[]) => {
-
         this.emails.set(data);
-        this.loading = false;
-
       },
-
       error: (err) => {
-
         console.error(err);
-        this.loading = false;
-
       }
-
     });
 
   }

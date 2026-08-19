@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Draft } from '../../../core/models/draft.model';
 import { DraftService } from '../../../core/services/draft.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-drafts',
@@ -31,14 +32,14 @@ export class Drafts implements OnInit {
 
   loadDrafts(): void {
     this.loading = true;
-    this.draftService.getDrafts().subscribe({
+    this.draftService.getDrafts().pipe(
+      finalize(() => { this.loading = false; })
+    ).subscribe({
       next: (data: Draft[]) => {
         this.drafts.set(data);
-        this.loading = false;
       },
       error: (err: any) => {
         console.error(err);
-        this.loading = false;
       },
     });
   }

@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 
 import { TaskService } from '../../../core/services/task.service';
+import { finalize } from 'rxjs/operators';
 import { Task } from '../../../core/models/task.model';
 
 @Component({
@@ -45,14 +46,14 @@ export class Tasks implements OnInit {
 
   loadTasks(): void {
     this.loading = true;
-    this.taskService.getTasks().subscribe({
+    this.taskService.getTasks().pipe(
+      finalize(() => { this.loading = false; })
+    ).subscribe({
       next: data => {
         this.tasks.set(data);
-        this.loading = false;
       },
       error: err => {
         console.error(err);
-        this.loading = false;
       }
     });
   }
