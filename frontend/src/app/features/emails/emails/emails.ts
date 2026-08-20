@@ -35,7 +35,7 @@ export class Emails implements OnInit {
 
   emails = signal<Email[]>([]);
 
-  loading = true;
+  loading = signal(true);
 
   searchText = '';
 
@@ -54,31 +54,35 @@ export class Emails implements OnInit {
   ) {}
 
   ngOnInit(): void {
-
     this.loadEmails();
-
   }
 
-  loadEmails() {
+  loadEmails(): void {
 
-    this.loading = true;
+    this.loading.set(true);
 
-    this.emailService.getEmails().pipe(
-      finalize(() => { this.loading = false; })
-    ).subscribe({
-      next: (data: Email[]) => {
-        this.emails.set(data);
-      },
-      error: (err) => {
-        console.error(err);
-      }
-    });
+    this.emailService
+      .getEmails()
+      .pipe(
+        finalize(() => {
+          this.loading.set(false);
+        })
+      )
+      .subscribe({
+        next: (data: Email[]) => {
+          this.emails.set(data ?? []);
+        },
 
+        error: (err) => {
+          console.error('Failed to load emails:', err);
+          this.emails.set([]);
+        }
+      });
   }
 
   filteredEmails = computed(() => {
 
-    const search = this.searchText.toLowerCase();
+    const search = this.searchText.trim().toLowerCase();
 
     if (!search) {
       return this.emails();
@@ -88,11 +92,9 @@ export class Emails implements OnInit {
       (email.sender ?? '').toLowerCase().includes(search) ||
       (email.summary ?? '').toLowerCase().includes(search)
     );
-
   });
 
   getSenderName(email: string): string {
     return (email ?? '').split('@')[0];
   }
-
 }

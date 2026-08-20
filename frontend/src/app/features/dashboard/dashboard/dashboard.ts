@@ -1,6 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,16 +21,22 @@ interface DashboardStats {
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule, RouterModule,
-    MatCardModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule,
+    CommonModule,
+    RouterModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    MatButtonModule,
+    MatIconModule,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
+
   stats = signal<DashboardStats | null>(null);
-  loading = true;
-  error = false;
+
+  loading = signal(true);
+  error = signal(false);
 
   constructor(private api: ApiService) {}
 
@@ -38,13 +45,26 @@ export class Dashboard implements OnInit {
   }
 
   loadStats(): void {
-    this.loading = true;
-    this.error = false;
-    this.api.get<DashboardStats>('/api/dashboard/stats').pipe(
-      finalize(() => { this.loading = false; })
-    ).subscribe({
-      next: (data) => { this.stats.set(data); },
-      error: () => { this.error = true; },
-    });
+    this.loading.set(true);
+    this.error.set(false);
+
+    this.api
+      .get<DashboardStats>('/api/dashboard/stats')
+      .pipe(
+        finalize(() => {
+          this.loading.set(false);
+        })
+      )
+      .subscribe({
+        next: (data: DashboardStats) => {
+          this.stats.set(data);
+        },
+
+        error: (err) => {
+          console.error('Failed to load dashboard:', err);
+          this.stats.set(null);
+          this.error.set(true);
+        },
+      });
   }
 }

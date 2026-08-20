@@ -8,17 +8,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 
 import { TaskService } from '../../../core/services/task.service';
-import { finalize } from 'rxjs/operators';
 import { Task } from '../../../core/models/task.model';
+import { finalize } from 'rxjs/operators';
 
 @Component({
-
   selector: 'app-tasks',
-
   standalone: true,
-
   imports: [
-
     CommonModule,
     MatCardModule,
     MatCheckboxModule,
@@ -26,17 +22,13 @@ import { Task } from '../../../core/models/task.model';
     MatProgressSpinnerModule,
     MatIconModule,
   ],
-
   templateUrl: './tasks.html',
-
-  styleUrl: './tasks.css'
-
+  styleUrl: './tasks.css',
 })
-
 export class Tasks implements OnInit {
 
   tasks = signal<Task[]>([]);
-  loading = true;
+  loading = signal(true);
 
   constructor(private taskService: TaskService) {}
 
@@ -45,50 +37,52 @@ export class Tasks implements OnInit {
   }
 
   loadTasks(): void {
-    this.loading = true;
-    this.taskService.getTasks().pipe(
-      finalize(() => { this.loading = false; })
-    ).subscribe({
-      next: data => {
-        this.tasks.set(data);
-      },
-      error: err => {
-        console.error(err);
-      }
-    });
+    this.loading.set(true);
+
+    this.taskService
+      .getTasks()
+      .pipe(
+        finalize(() => {
+          this.loading.set(false);
+        })
+      )
+      .subscribe({
+        next: (data: Task[]) => {
+          this.tasks.set(data ?? []);
+        },
+        error: (err) => {
+          console.error('Failed to load tasks:', err);
+          this.tasks.set([]);
+        },
+      });
   }
 
   completeTask(taskId: string): void {
     this.taskService.completeTask(taskId).subscribe({
       next: () => {
-        this.tasks.update(tasks => tasks.filter(t => t.id !== taskId));
+        this.tasks.update(tasks =>
+          tasks.filter(task => task.id !== taskId)
+        );
       },
-      error: err => console.error(err),
+      error: (err) => {
+        console.error('Failed to complete task:', err);
+      },
     });
   }
 
   tasksWithDeadline(): number {
+    return this.tasks().filter(task => !!task.deadline).length;
+  }
 
-    return this.tasks()
-        .filter(t => t.deadline)
-        .length;
+  tasksWithoutDeadline(): number {
+    return this.tasks().filter(task => !task.deadline).length;
+  }
 
-}
-
-tasksWithoutDeadline(): number {
-
-    return this.tasks()
-        .filter(t => !t.deadline)
-        .length;
-
-}
-
-isOverdue(task: Task): boolean {
-
-    if(!task.deadline) return false;
+  isOverdue(task: Task): boolean {
+    if (!task.deadline) {
+      return false;
+    }
 
     return new Date(task.deadline) < new Date();
-
-}
-
+  }
 }

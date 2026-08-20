@@ -12,9 +12,11 @@
 # Python
 # ==========================
 backend/.venv/
-backend/__pycache__/
-backend/**/*.pyc
-backend/.pytest_cache/
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
 
 # ==========================
 # Node / Angular

@@ -4,112 +4,251 @@
 </div>
 
 <!-- Loading -->
-<div *ngIf="loading" class="centered">
+<div *ngIf="loading()" class="centered">
   <mat-spinner diameter="48"></mat-spinner>
   <p class="loading-label">Loading dashboard…</p>
 </div>
 
 <!-- Error -->
-<div *ngIf="error && !loading" class="state-card error-state">
+<div *ngIf="error() && !loading()" class="state-card error-state">
   <mat-icon class="state-icon">cloud_off</mat-icon>
+
   <h3>Could not load dashboard</h3>
-  <p>Check your connection and try again.</p>
-  <button mat-raised-button color="primary" (click)="loadStats()">
-    <mat-icon>refresh</mat-icon> Retry
+
+  <p>
+    Check your connection and try again.
+  </p>
+
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="loadStats()"
+  >
+    <mat-icon>refresh</mat-icon>
+    Retry
   </button>
 </div>
 
 <!-- Content -->
-<ng-container *ngIf="!loading && !error && stats()">
+<ng-container *ngIf="!loading() && !error() && stats()">
 
   <!-- Stat cards -->
   <div class="stats-grid">
 
-    <mat-card class="stat-card" routerLink="/emails" matRipple>
-      <div class="stat-icon-wrap blue"><mat-icon>email</mat-icon></div>
+    <mat-card
+      class="stat-card"
+      routerLink="/emails"
+      matRipple
+    >
+      <div class="stat-icon-wrap blue">
+        <mat-icon>email</mat-icon>
+      </div>
+
       <div class="stat-body">
         <p class="stat-label">Total Emails</p>
-        <p class="stat-value">{{ stats()!.totalEmails }}</p>
+        <p class="stat-value">
+          {{ stats()!.totalEmails }}
+        </p>
       </div>
     </mat-card>
 
-    <mat-card class="stat-card" routerLink="/tasks" matRipple>
-      <div class="stat-icon-wrap orange"><mat-icon>task_alt</mat-icon></div>
+
+    <mat-card
+      class="stat-card"
+      routerLink="/tasks"
+      matRipple
+    >
+      <div class="stat-icon-wrap orange">
+        <mat-icon>task_alt</mat-icon>
+      </div>
+
       <div class="stat-body">
         <p class="stat-label">Pending Tasks</p>
-        <p class="stat-value">{{ stats()!.pendingTasks }}</p>
+        <p class="stat-value">
+          {{ stats()!.pendingTasks }}
+        </p>
       </div>
     </mat-card>
 
-    <mat-card class="stat-card" routerLink="/drafts" matRipple>
-      <div class="stat-icon-wrap green"><mat-icon>edit_note</mat-icon></div>
+
+    <mat-card
+      class="stat-card"
+      routerLink="/drafts"
+      matRipple
+    >
+      <div class="stat-icon-wrap green">
+        <mat-icon>edit_note</mat-icon>
+      </div>
+
       <div class="stat-body">
         <p class="stat-label">AI Drafts</p>
-        <p class="stat-value">{{ stats()!.drafts }}</p>
+        <p class="stat-value">
+          {{ stats()!.drafts }}
+        </p>
       </div>
     </mat-card>
 
-    <mat-card class="stat-card" routerLink="/drafts" matRipple>
-      <div class="stat-icon-wrap red"><mat-icon>rate_review</mat-icon></div>
+
+    <mat-card
+      class="stat-card"
+      routerLink="/drafts"
+      matRipple
+    >
+      <div class="stat-icon-wrap red">
+        <mat-icon>rate_review</mat-icon>
+      </div>
+
       <div class="stat-body">
         <p class="stat-label">Needs Review</p>
-        <p class="stat-value">{{ stats()!.needsReview }}</p>
+        <p class="stat-value">
+          {{ stats()!.needsReview }}
+        </p>
       </div>
     </mat-card>
 
   </div>
 
+
   <!-- First-run empty state -->
-  <div class="state-card welcome-state" *ngIf="stats()!.totalEmails === 0">
-    <mat-icon class="state-icon welcome-icon">inbox</mat-icon>
+  <div
+    class="state-card welcome-state"
+    *ngIf="stats()!.totalEmails === 0"
+  >
+
+    <mat-icon class="state-icon welcome-icon">
+      inbox
+    </mat-icon>
+
     <h2>No emails synced yet</h2>
-    <p>Gmail sync runs automatically every 5 minutes. Your emails will appear here after the first sync.</p>
+
+    <p>
+      Gmail sync runs automatically every 5 minutes.
+      Your emails will appear here after the first sync.
+    </p>
+
     <div class="how-it-works">
+
       <div class="step">
         <span class="step-num">1</span>
-        <span>Gmail is polled for unread inbox messages</span>
+        <span>
+          Gmail is polled for unread inbox messages
+        </span>
       </div>
+
       <div class="step">
         <span class="step-num">2</span>
-        <span>Gemini AI classifies priority, category &amp; extracts tasks</span>
+        <span>
+          Gemini AI classifies priority, category &amp;
+          extracts tasks
+        </span>
       </div>
+
       <div class="step">
         <span class="step-num">3</span>
-        <span>Draft replies are generated and held for your review before sending</span>
+        <span>
+          Draft replies are generated and held for your
+          review before sending
+        </span>
       </div>
+
     </div>
+
   </div>
 
-  <!-- Quick actions when data exists -->
-  <div *ngIf="stats()!.totalEmails > 0" class="quick-section">
-    <h2 class="section-heading">Quick Actions</h2>
+
+  <!-- Quick actions -->
+  <div
+    *ngIf="stats()!.totalEmails > 0"
+    class="quick-section"
+  >
+
+    <h2 class="section-heading">
+      Quick Actions
+    </h2>
+
     <div class="quick-grid">
 
-      <mat-card class="quick-card" routerLink="/emails" matRipple>
+      <mat-card
+        class="quick-card"
+        routerLink="/emails"
+        matRipple
+      >
         <mat-icon>email</mat-icon>
-        <span>View All Emails</span>
-        <mat-icon class="chevron">chevron_right</mat-icon>
+
+        <span>
+          View All Emails
+        </span>
+
+        <mat-icon class="chevron">
+          chevron_right
+        </mat-icon>
       </mat-card>
 
-      <mat-card class="quick-card accent" routerLink="/drafts" matRipple *ngIf="stats()!.drafts > 0">
+
+      <mat-card
+        class="quick-card accent"
+        routerLink="/drafts"
+        matRipple
+        *ngIf="stats()!.drafts > 0"
+      >
         <mat-icon>edit_note</mat-icon>
-        <span>Review Drafts <strong>({{ stats()!.drafts }})</strong></span>
-        <mat-icon class="chevron">chevron_right</mat-icon>
+
+        <span>
+          Review Drafts
+          <strong>
+            ({{ stats()!.drafts }})
+          </strong>
+        </span>
+
+        <mat-icon class="chevron">
+          chevron_right
+        </mat-icon>
       </mat-card>
 
-      <mat-card class="quick-card warn" routerLink="/drafts" matRipple *ngIf="stats()!.needsReview > 0">
+
+      <mat-card
+        class="quick-card warn"
+        routerLink="/drafts"
+        matRipple
+        *ngIf="stats()!.needsReview > 0"
+      >
         <mat-icon>rate_review</mat-icon>
-        <span>Needs Review <strong>({{ stats()!.needsReview }})</strong></span>
-        <mat-icon class="chevron">chevron_right</mat-icon>
+
+        <span>
+          Needs Review
+          <strong>
+            ({{ stats()!.needsReview }})
+          </strong>
+        </span>
+
+        <mat-icon class="chevron">
+          chevron_right
+        </mat-icon>
       </mat-card>
 
-      <mat-card class="quick-card" routerLink="/tasks" matRipple *ngIf="stats()!.pendingTasks > 0">
+
+      <mat-card
+        class="quick-card"
+        routerLink="/tasks"
+        matRipple
+        *ngIf="stats()!.pendingTasks > 0"
+      >
         <mat-icon>task_alt</mat-icon>
-        <span>Open Tasks <strong>({{ stats()!.pendingTasks }})</strong></span>
-        <mat-icon class="chevron">chevron_right</mat-icon>
+
+        <span>
+          Open Tasks
+          <strong>
+            ({{ stats()!.pendingTasks }})
+          </strong>
+        </span>
+
+        <mat-icon class="chevron">
+          chevron_right
+        </mat-icon>
       </mat-card>
 
     </div>
+
   </div>
 
 </ng-container>

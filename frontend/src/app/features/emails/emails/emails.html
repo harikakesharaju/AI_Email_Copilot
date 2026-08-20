@@ -1,90 +1,316 @@
 <div class="page-header">
+
   <div>
     <h1 class="page-title">Emails</h1>
-    <p class="page-subtitle">Inbox synced via Gmail API</p>
+    <p class="page-subtitle">
+      Inbox synced via Gmail API
+    </p>
   </div>
-  <span class="count-badge" *ngIf="!loading">{{ filteredEmails().length }}</span>
+
+  <span
+    class="count-badge"
+    *ngIf="!loading()"
+  >
+    {{ filteredEmails().length }}
+  </span>
+
 </div>
 
-<div *ngIf="loading" class="centered">
+
+<!-- Loading state -->
+
+<div
+  *ngIf="loading()"
+  class="centered"
+>
   <mat-spinner diameter="48"></mat-spinner>
-  <p class="loading-label">Loading emails…</p>
+  <p class="loading-label">
+    Loading emails…
+  </p>
 </div>
 
-<div *ngIf="!loading && emails().length === 0" class="state-card">
-  <mat-icon class="state-icon">mark_email_unread</mat-icon>
+
+<!-- Empty state -->
+
+<div
+  *ngIf="!loading() && emails().length === 0"
+  class="state-card"
+>
+
+  <mat-icon class="state-icon">
+    mark_email_unread
+  </mat-icon>
+
   <h2>No emails yet</h2>
-  <p>Gmail sync runs automatically every 5 minutes. Check back shortly.</p>
+
+  <p>
+    Gmail sync runs automatically every 5 minutes.
+    Check back shortly.
+  </p>
+
 </div>
 
-<ng-container *ngIf="!loading && emails().length > 0">
 
-  <mat-form-field appearance="outline" class="search-box">
-    <mat-label>Search emails</mat-label>
-    <mat-icon matPrefix>search</mat-icon>
-    <input matInput placeholder="Sender or summary…" [(ngModel)]="searchText">
+<!-- Emails loaded -->
+
+<ng-container
+  *ngIf="!loading() && emails().length > 0"
+>
+
+  <mat-form-field
+    appearance="outline"
+    class="search-box"
+  >
+
+    <mat-label>
+      Search emails
+    </mat-label>
+
+    <mat-icon matPrefix>
+      search
+    </mat-icon>
+
+    <input
+      matInput
+      placeholder="Sender or summary…"
+      [(ngModel)]="searchText"
+    >
+
   </mat-form-field>
 
+
   <mat-card class="table-card">
-    <table mat-table [dataSource]="filteredEmails()" class="emails-table">
+
+    <table
+      mat-table
+      [dataSource]="filteredEmails()"
+      class="emails-table"
+    >
+
+      <!-- Sender -->
 
       <ng-container matColumnDef="sender">
-        <th mat-header-cell *matHeaderCellDef>Sender</th>
-        <td mat-cell *matCellDef="let email">
+
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+        >
+          Sender
+        </th>
+
+        <td
+          mat-cell
+          *matCellDef="let email"
+        >
+
           <div class="sender-cell">
-            <div class="avatar">{{ getSenderName(email.sender).charAt(0).toUpperCase() }}</div>
-            <span>{{ getSenderName(email.sender) }}</span>
+
+            <div class="avatar">
+              {{ getSenderName(email.sender).charAt(0).toUpperCase() }}
+            </div>
+
+            <span>
+              {{ getSenderName(email.sender) }}
+            </span>
+
           </div>
+
         </td>
+
       </ng-container>
+
+
+      <!-- Summary -->
 
       <ng-container matColumnDef="summary">
-        <th mat-header-cell *matHeaderCellDef>Summary</th>
-        <td mat-cell *matCellDef="let email" class="summary-cell">{{ email.summary }}</td>
+
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+        >
+          Summary
+        </th>
+
+        <td
+          mat-cell
+          *matCellDef="let email"
+          class="summary-cell"
+        >
+          {{ email.summary }}
+        </td>
+
       </ng-container>
+
+
+      <!-- Category -->
 
       <ng-container matColumnDef="category">
-        <th mat-header-cell *matHeaderCellDef>Category</th>
-        <td mat-cell *matCellDef="let email">
-          <span class="category-tag">{{ email.category }}</span>
+
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+        >
+          Category
+        </th>
+
+        <td
+          mat-cell
+          *matCellDef="let email"
+        >
+
+          <span class="category-tag">
+            {{ email.category }}
+          </span>
+
         </td>
+
       </ng-container>
+
+
+      <!-- Priority -->
 
       <ng-container matColumnDef="priority">
-        <th mat-header-cell *matHeaderCellDef>Priority</th>
-        <td mat-cell *matCellDef="let email">
-          <span class="priority-chip" [ngClass]="email.priority?.toLowerCase()">{{ email.priority }}</span>
+
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+        >
+          Priority
+        </th>
+
+        <td
+          mat-cell
+          *matCellDef="let email"
+        >
+
+          <span
+            class="priority-chip"
+            [ngClass]="email.priority?.toLowerCase()"
+          >
+            {{ email.priority }}
+          </span>
+
         </td>
+
       </ng-container>
+
+
+      <!-- Confidence -->
 
       <ng-container matColumnDef="confidence">
-        <th mat-header-cell *matHeaderCellDef>Confidence</th>
-        <td mat-cell *matCellDef="let email" class="date-cell">{{ email.confidence | percent:'1.0-0' }}</td>
+
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+        >
+          Confidence
+        </th>
+
+        <td
+          mat-cell
+          *matCellDef="let email"
+          class="date-cell"
+        >
+          {{ email.confidence | percent:'1.0-0' }}
+        </td>
+
       </ng-container>
+
+
+      <!-- Manual review -->
 
       <ng-container matColumnDef="needs_manual_review">
-        <th mat-header-cell *matHeaderCellDef>Review</th>
-        <td mat-cell *matCellDef="let email">
-          <span class="review-badge" [class.needs]="email.needs_manual_review">
-            <mat-icon>{{ email.needs_manual_review ? 'warning' : 'check_circle' }}</mat-icon>
-            {{ email.needs_manual_review ? 'Needs Review' : 'Auto' }}
+
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+        >
+          Review
+        </th>
+
+        <td
+          mat-cell
+          *matCellDef="let email"
+        >
+
+          <span
+            class="review-badge"
+            [class.needs]="email.needs_manual_review"
+          >
+
+            <mat-icon>
+              {{
+                email.needs_manual_review
+                  ? 'warning'
+                  : 'check_circle'
+              }}
+            </mat-icon>
+
+            {{
+              email.needs_manual_review
+                ? 'Needs Review'
+                : 'Auto'
+            }}
+
           </span>
+
         </td>
+
       </ng-container>
+
+
+      <!-- Received -->
 
       <ng-container matColumnDef="received_at">
-        <th mat-header-cell *matHeaderCellDef>Received</th>
-        <td mat-cell *matCellDef="let email" class="date-cell">{{ email.received_at | date:'MMM d, h:mm a' }}</td>
+
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+        >
+          Received
+        </th>
+
+        <td
+          mat-cell
+          *matCellDef="let email"
+          class="date-cell"
+        >
+          {{ email.received_at | date:'MMM d, h:mm a' }}
+        </td>
+
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <tr
+        mat-header-row
+        *matHeaderRowDef="displayedColumns"
+      ></tr>
+
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns;"
+      ></tr>
+
     </table>
 
-    <div *ngIf="filteredEmails().length === 0" class="no-results">
-      <mat-icon>search_off</mat-icon>
-      <p>No emails match "{{ searchText }}"</p>
+
+    <!-- Search returned no results -->
+
+    <div
+      *ngIf="filteredEmails().length === 0"
+      class="no-results"
+    >
+
+      <mat-icon>
+        search_off
+      </mat-icon>
+
+      <p>
+        No emails match "{{ searchText }}"
+      </p>
+
     </div>
+
   </mat-card>
 
 </ng-container>
